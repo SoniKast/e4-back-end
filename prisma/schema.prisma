@@ -1,0 +1,42 @@
+// schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Intervention {
+  id        Int      @id @default(autoincrement())
+  date      DateTime
+  duree     Int
+  projetId  Int
+  salarieId Int
+  
+  projet  Projet  @relation(fields: [projetId], references: [id], onDelete: Cascade)
+  salarie Salarie @relation(fields: [salarieId], references: [id], onDelete: Cascade)
+  
+  @@map("interventions")
+}
+
+model Projet {
+  id    Int    @id @default(autoincrement())
+  nom   String
+  
+  interventions Intervention[]
+  
+  @@map("projets")
+}
+
+model Salarie {
+  id      Int    @id @default(autoincrement())
+  nom     String
+  prenom  String
+  
+  interventions Intervention[]
+  
+  @@map("salaries")
+}
