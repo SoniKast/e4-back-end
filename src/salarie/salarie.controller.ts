@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { SalarieService } from './salarie.service';
 import { Salarie } from '@prisma/client';
+import { CreateSalarieDto } from './dto/create-salarie.dto';
 
 @Controller('salaries')
 export class SalarieController {
@@ -25,10 +26,8 @@ export class SalarieController {
   }
 
   @Post()
-  async create(
-    @Body() data: { nom: string; prenom: string },
-  ): Promise<Salarie> {
-    return this.salarieService.create(data);
+  async create(@Body() createSalarieDto: CreateSalarieDto): Promise<Salarie> {
+    return this.salarieService.create(createSalarieDto);
   }
 
   @Put(':id')

@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { InterventionService } from './intervention.service';
 import { Intervention } from '@prisma/client';
+import { CreateInterventionDto } from './dto/create-intervention.dto';
 
 @Controller('interventions')
 export class InterventionController {
@@ -25,16 +26,8 @@ export class InterventionController {
   }
 
   @Post()
-  async create(
-    @Body()
-    data: {
-      date: Date;
-      duree: number;
-      projetId: number;
-      salarieId: number;
-    },
-  ): Promise<Intervention> {
-    return this.interventionService.create(data);
+  async create(@Body() createInterventionDto: CreateInterventionDto): Promise<Intervention> {
+    return this.interventionService.create(createInterventionDto);
   }
 
   @Put(':id')

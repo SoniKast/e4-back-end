@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { ProjetService } from './projet.service';
 import { Projet } from '@prisma/client';
+import { CreateProjetDto } from './dto/create-projet.dto';
 
 @Controller('projets')
 export class ProjetController {
@@ -25,8 +26,8 @@ export class ProjetController {
   }
 
   @Post()
-  async create(@Body() data: { nom: string }): Promise<Projet> {
-    return this.projetService.create(data);
+  async create(@Body() createProjetDto: CreateProjetDto): Promise<Projet> {
+    return this.projetService.create(createProjetDto);
   }
 
   @Put(':id')
