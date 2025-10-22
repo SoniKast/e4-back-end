@@ -15,10 +15,11 @@ model Intervention {
   duree      Int
   projetId   Int
   salarieId  Int
+  materielId Int
 
   projet     Projet     @relation(fields: [projetId], references: [id], onDelete: Cascade)
   salarie    Salarie    @relation(fields: [salarieId], references: [id], onDelete: Cascade)
-  materiels  Materiel[]
+  materiel   Materiel   @relation(fields: [materielId], references: [id], onDelete: Cascade)
 
   @@map("interventions")
 }
@@ -26,6 +27,7 @@ model Intervention {
 model Projet {
   id              Int              @id @default(autoincrement())
   nom             String
+  dureeTotale     Int              @default(100) // Durée totale du projet en heures
   clientId        Int?             @unique // 1 client → 0..1 projet
   client          Client?          @relation(fields: [clientId], references: [id], onDelete: SetNull)
   interventions   Intervention[]
@@ -35,6 +37,7 @@ model Projet {
 
 model Client {
   id         Int       @id @default(autoincrement())
+  nom        String
   adresse    String
   projet     Projet?   // 1 client peut avoir 0..1 projet
 
@@ -53,8 +56,7 @@ model Salarie {
 model Materiel {
   id              Int           @id @default(autoincrement())
   designation     String
-  interventionId  Int
-  intervention    Intervention   @relation(fields: [interventionId], references: [id], onDelete: Cascade)
+  interventions   Intervention[]
 
   @@map("materiels")
 }

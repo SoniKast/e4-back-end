@@ -92,7 +92,16 @@ export class ProjetService {
     totalTime: number;
     remainingTime: number;
     interventions: any[];
+    projectDuration: number;
   }> {
+    const projet = await this.prisma.projet.findUnique({
+      where: { id: projetId },
+    });
+
+    if (!projet) {
+      throw new Error('Projet non trouvé');
+    }
+
     const interventions = await this.prisma.intervention.findMany({
       where: { projetId },
       include: {
@@ -102,14 +111,13 @@ export class ProjetService {
 
     const totalTime = interventions.reduce((sum, intervention) => sum + intervention.duree, 0);
     
-    // Assuming a standard project duration (you might want to make this configurable)
-    const projectDuration = 100; // hours
-    const remainingTime = Math.max(0, projectDuration - totalTime);
+    const remainingTime = Math.max(0, projet.dureeTotale - totalTime);
 
     return {
       totalTime,
       remainingTime,
       interventions,
+      projectDuration: projet.dureeTotale,
     };
   }
 }

@@ -11,7 +11,7 @@ export class MaterielService {
   async findAll(): Promise<Materiel[]> {
     return this.prisma.materiel.findMany({
       include: {
-        intervention: true,
+        interventions: true,
       },
     });
   }
@@ -20,7 +20,7 @@ export class MaterielService {
     return this.prisma.materiel.findUnique({
       where: { id },
       include: {
-        intervention: true,
+        interventions: true,
       },
     });
   }
@@ -29,7 +29,7 @@ export class MaterielService {
     return this.prisma.materiel.create({
       data: createMaterielDto,
       include: {
-        intervention: true,
+        interventions: true,
       },
     });
   }
@@ -39,7 +39,7 @@ export class MaterielService {
       where: { id },
       data: updateMaterielDto,
       include: {
-        intervention: true,
+        interventions: true,
       },
     });
   }
@@ -48,7 +48,7 @@ export class MaterielService {
     return this.prisma.materiel.delete({
       where: { id },
       include: {
-        intervention: true,
+        interventions: true,
       },
     });
   }
@@ -56,10 +56,14 @@ export class MaterielService {
   async findByInterventionId(interventionId: number): Promise<Materiel[]> {
     return this.prisma.materiel.findMany({
       where: {
-        interventionId,
+        interventions: {
+          some: {
+            id: interventionId
+          }
+        },
       },
       include: {
-        intervention: true,
+        interventions: true,
       },
     });
   }

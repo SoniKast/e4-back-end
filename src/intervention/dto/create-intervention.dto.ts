@@ -3,5 +3,5 @@ export class CreateInterventionDto {
   duree: number;
   projetId: number;
   salarieId: number;
-  materiels?: { designation: string }[];
+  materielId: number;
 }
