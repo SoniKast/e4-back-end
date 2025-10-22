@@ -10,46 +10,51 @@ datasource db {
 }
 
 model Intervention {
-  id        Int      @id @default(autoincrement())
-  date      DateTime
-  duree     Int
-  projetId  Int
-  salarieId Int
-  
-  projet  Projet  @relation(fields: [projetId], references: [id], onDelete: Cascade)
-  salarie Salarie @relation(fields: [salarieId], references: [id], onDelete: Cascade)
-  
+  id         Int        @id @default(autoincrement())
+  date       DateTime
+  duree      Int
+  projetId   Int
+  salarieId  Int
+
+  projet     Projet     @relation(fields: [projetId], references: [id], onDelete: Cascade)
+  salarie    Salarie    @relation(fields: [salarieId], references: [id], onDelete: Cascade)
+  materiels  Materiel[]
+
   @@map("interventions")
 }
 
 model Projet {
-  id    Int    @id @default(autoincrement())
-  nom   String
-  clientId Int?    @unique  // Clé étrangère unique pour relation one-to-one
-  
-  client       Client?       @relation(fields: [clientId], references: [id], onDelete: SetNull)
-  interventions Intervention[]
-  
+  id              Int              @id @default(autoincrement())
+  nom             String
+  clientId        Int?             @unique // 1 client → 0..1 projet
+  client          Client?          @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  interventions   Intervention[]
+
   @@map("projets")
 }
 
 model Client {
-  id      Int     @id @default(autoincrement())
-  adresse String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  
-  projet Projet?  // Relation one-to-one (un client peut avoir 0 ou 1 projet)
-  
+  id         Int       @id @default(autoincrement())
+  adresse    String
+  projet     Projet?   // 1 client peut avoir 0..1 projet
+
   @@map("clients")
 }
 
 model Salarie {
-  id      Int    @id @default(autoincrement())
-  nom     String
-  prenom  String
-  
-  interventions Intervention[]
-  
+  id             Int             @id @default(autoincrement())
+  nom            String
+  prenom         String
+  interventions  Intervention[]
+
   @@map("salaries")
+}
+
+model Materiel {
+  id              Int           @id @default(autoincrement())
+  designation     String
+  interventionId  Int
+  intervention    Intervention   @relation(fields: [interventionId], references: [id], onDelete: Cascade)
+
+  @@map("materiels")
 }

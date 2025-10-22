@@ -11,6 +11,7 @@ export class InterventionService {
       include: {
         projet: true,
         salarie: true,
+        materiels: true,
       },
     });
   }
@@ -21,6 +22,7 @@ export class InterventionService {
       include: {
         projet: true,
         salarie: true,
+        materiels: true,
       },
     });
   }
@@ -30,12 +32,24 @@ export class InterventionService {
     duree: number;
     projetId: number;
     salarieId: number;
+    materiels?: { designation: string }[];
   }): Promise<Intervention> {
     return this.prisma.intervention.create({
-      data,
+      data: {
+        date: data.date,
+        duree: data.duree,
+        projetId: data.projetId,
+        salarieId: data.salarieId,
+        materiels: data.materiels ? {
+          create: data.materiels.map(materiel => ({
+            designation: materiel.designation,
+          }))
+        } : undefined,
+      },
       include: {
         projet: true,
         salarie: true,
+        materiels: true,
       },
     });
   }
@@ -55,6 +69,7 @@ export class InterventionService {
       include: {
         projet: true,
         salarie: true,
+        materiels: true,
       },
     });
   }
@@ -65,6 +80,7 @@ export class InterventionService {
       include: {
         projet: true,
         salarie: true,
+        materiels: true,
       },
     });
   }
@@ -77,6 +93,7 @@ export class InterventionService {
       include: {
         projet: true,
         salarie: true,
+        materiels: true,
       },
       orderBy: {
         date: 'asc',
@@ -92,6 +109,7 @@ export class InterventionService {
       include: {
         salarie: true,
         projet: true,
+        materiels: true,
       },
       orderBy: {
         date: 'asc',
