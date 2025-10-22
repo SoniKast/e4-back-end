@@ -48,4 +48,14 @@ export class InterventionController {
   async remove(@Param('id') id: string): Promise<Intervention> {
     return this.interventionService.remove(Number(id));
   }
+
+  @Get('salarie/:salarieId')
+  async findBySalarieId(@Param('salarieId') salarieId: string): Promise<Intervention[]> {
+    return this.interventionService.findBySalarieId(Number(salarieId));
+  }
+
+  @Get('projet/:projetId')
+  async findByProjetId(@Param('projetId') projetId: string): Promise<Intervention[]> {
+    return this.interventionService.findByProjetId(Number(projetId));
+  }
 }

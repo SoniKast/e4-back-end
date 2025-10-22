@@ -9,6 +9,7 @@ export class ProjetService {
   async findAll(): Promise<Projet[]> {
     return this.prisma.projet.findMany({
       include: {
+        client: true,
         interventions: {
           include: {
             salarie: true,
@@ -22,6 +23,7 @@ export class ProjetService {
     return this.prisma.projet.findUnique({
       where: { id },
       include: {
+        client: true,
         interventions: {
           include: {
             salarie: true,
@@ -31,10 +33,14 @@ export class ProjetService {
     });
   }
 
-  async create(data: { nom: string }): Promise<Projet> {
+  async create(data: { nom: string; clientId: number }): Promise<Projet> {
     return this.prisma.projet.create({
-      data,
+      data: {
+        nom: data.nom,
+        clientId: data.clientId
+      },
       include: {
+        client: true,
         interventions: {
           include: {
             salarie: true,
@@ -44,11 +50,22 @@ export class ProjetService {
     });
   }
 
-  async update(id: number, data: { nom?: string }): Promise<Projet> {
+  async update(id: number, data: { nom?: string; clientId?: number }): Promise<Projet> {
+    const updateData: any = {};
+    
+    if (data.nom !== undefined) {
+      updateData.nom = data.nom;
+    }
+    
+    if (data.clientId !== undefined) {
+      updateData.clientId = data.clientId;
+    }
+    
     return this.prisma.projet.update({
       where: { id },
-      data,
+      data: updateData,
       include: {
+        client: true,
         interventions: {
           include: {
             salarie: true,
@@ -69,5 +86,30 @@ export class ProjetService {
         },
       },
     });
+  }
+
+  async getProjectTimeSummary(projetId: number): Promise<{
+    totalTime: number;
+    remainingTime: number;
+    interventions: any[];
+  }> {
+    const interventions = await this.prisma.intervention.findMany({
+      where: { projetId },
+      include: {
+        salarie: true,
+      },
+    });
+
+    const totalTime = interventions.reduce((sum, intervention) => sum + intervention.duree, 0);
+    
+    // Assuming a standard project duration (you might want to make this configurable)
+    const projectDuration = 100; // hours
+    const remainingTime = Math.max(0, projectDuration - totalTime);
+
+    return {
+      totalTime,
+      remainingTime,
+      interventions,
+    };
   }
 }

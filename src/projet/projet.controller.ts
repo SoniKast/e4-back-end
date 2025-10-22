@@ -42,4 +42,13 @@ export class ProjetController {
   async remove(@Param('id') id: string): Promise<Projet> {
     return this.projetService.remove(Number(id));
   }
+
+  @Get(':id/time-summary')
+  async getTimeSummary(@Param('id') id: string): Promise<{
+    totalTime: number;
+    remainingTime: number;
+    interventions: any[];
+  }> {
+    return this.projetService.getProjectTimeSummary(Number(id));
+  }
 }

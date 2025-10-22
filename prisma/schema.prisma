@@ -25,10 +25,23 @@ model Intervention {
 model Projet {
   id    Int    @id @default(autoincrement())
   nom   String
+  clientId Int?    @unique  // Clé étrangère unique pour relation one-to-one
   
+  client       Client?       @relation(fields: [clientId], references: [id], onDelete: SetNull)
   interventions Intervention[]
   
   @@map("projets")
+}
+
+model Client {
+  id      Int     @id @default(autoincrement())
+  adresse String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  projet Projet?  // Relation one-to-one (un client peut avoir 0 ou 1 projet)
+  
+  @@map("clients")
 }
 
 model Salarie {
