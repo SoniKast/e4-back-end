@@ -62,26 +62,22 @@ model Materiel {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  password  String
-  nom       String
-  prenom    String
-  roleId    Int
-  role      Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id       Int    @id @default(autoincrement())
+  email    String @unique
+  password String
+  nom      String
+  prenom   String
+  roleId   Int
+  role     Role   @relation(fields: [roleId], references: [id], onDelete: Cascade)
 
   @@map("users")
 }
 
 model Role {
-  id          Int      @id @default(autoincrement())
-  name        String   @unique
+  id          Int     @id @default(autoincrement())
+  name        String  @unique
   description String?
   users       User[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
 
   @@map("roles")
 }
