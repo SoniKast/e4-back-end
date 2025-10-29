@@ -10,53 +10,78 @@ datasource db {
 }
 
 model Intervention {
-  id         Int        @id @default(autoincrement())
+  id         Int      @id @default(autoincrement())
   date       DateTime
   duree      Int
   projetId   Int
   salarieId  Int
   materielId Int
 
-  projet     Projet     @relation(fields: [projetId], references: [id], onDelete: Cascade)
-  salarie    Salarie    @relation(fields: [salarieId], references: [id], onDelete: Cascade)
-  materiel   Materiel   @relation(fields: [materielId], references: [id], onDelete: Cascade)
+  projet   Projet   @relation(fields: [projetId], references: [id], onDelete: Cascade)
+  salarie  Salarie  @relation(fields: [salarieId], references: [id], onDelete: Cascade)
+  materiel Materiel @relation(fields: [materielId], references: [id], onDelete: Cascade)
 
   @@map("interventions")
 }
 
 model Projet {
-  id              Int              @id @default(autoincrement())
-  nom             String
-  dureeTotale     Int              @default(100) // Durée totale du projet en heures
-  clientId        Int?             @unique // 1 client → 0..1 projet
-  client          Client?          @relation(fields: [clientId], references: [id], onDelete: SetNull)
-  interventions   Intervention[]
+  id            Int            @id @default(autoincrement())
+  nom           String
+  dureeTotale   Int            @default(100) // Durée totale du projet en heures
+  clientId      Int?           @unique // 1 client → 0..1 projet
+  client        Client?        @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  interventions Intervention[]
 
   @@map("projets")
 }
 
 model Client {
-  id         Int       @id @default(autoincrement())
-  nom        String
-  adresse    String
-  projet     Projet?   // 1 client peut avoir 0..1 projet
+  id      Int     @id @default(autoincrement())
+  nom     String
+  adresse String
+  projet  Projet? // 1 client peut avoir 0..1 projet
 
   @@map("clients")
 }
 
 model Salarie {
-  id             Int             @id @default(autoincrement())
-  nom            String
-  prenom         String
-  interventions  Intervention[]
+  id            Int            @id @default(autoincrement())
+  nom           String
+  prenom        String
+  interventions Intervention[]
 
   @@map("salaries")
 }
 
 model Materiel {
-  id              Int           @id @default(autoincrement())
-  designation     String
-  interventions   Intervention[]
+  id            Int            @id @default(autoincrement())
+  designation   String
+  interventions Intervention[]
 
   @@map("materiels")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  nom       String
+  prenom    String
+  roleId    Int
+  role      Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+model Role {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  description String?
+  users       User[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("roles")
 }
