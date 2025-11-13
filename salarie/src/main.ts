@@ -10,12 +10,14 @@ async function bootstrap() {
     {
       transport: Transport.GRPC,
       options: {
-        package: 'hero',
-        protoPath: join(__dirname, 'proto/hero.proto'),
+        package: 'salarie',
+        protoPath: join(__dirname, 'proto/salarie.proto'),
+        url: '0.0.0.0:50051',
       },
     }
   );
   await app.listen();
+  console.log('Service SALARIE gRPC démarré sur le port 50051');
   if (module.hot) {
     module.hot.accept();
     module.hot.dispose(() => app.close());

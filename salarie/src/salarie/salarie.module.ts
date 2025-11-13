@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
-import { SalarieService } from './salarie.service';
 import { SalarieController } from './salarie.controller';
-import { PrismaService } from '../prisma.service';
+import { SalarieService } from './salarie.service';
 
 @Module({
   controllers: [SalarieController],
-  providers: [SalarieService, PrismaService],
+  providers: [SalarieService],
+  exports: [SalarieService],
 })
 export class SalarieModule {}

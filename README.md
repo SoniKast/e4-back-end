@@ -1,98 +1,165 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# E4 Backend - Architecture Microservices avec gRPC
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+## Architecture
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+Cette application utilise une architecture microservices avec les composants suivants :
 
-## Description
+### Services
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+1. **Frontend Service** (Next.js)
+   - Port : 3000
+   - Interface utilisateur React/Next.js
+   - Communique avec l'API via le reverse proxy
 
-## Project setup
+2. **Intervention Service** (NestJS)
+   - Port : 5000
+   - API REST pour la gestion des interventions, projets, clients, matériels
+   - Client gRPC pour communiquer avec le service SALARIE
+   - Authentification JWT
 
-```bash
-$ npm install
+3. **Salarie Service** (NestJS)
+   - Port : 50051
+   - Microservice gRPC pour la gestion des salariés
+   - Non exposé publiquement (communication interne uniquement)
+
+4. **Nginx Reverse Proxy**
+   - Port : 80
+   - Point d'entrée unique
+   - Route les requêtes vers les services appropriés
+
+5. **PostgreSQL Database**
+   - Port : 5432
+   - Base de données partagée avec séparation logique
+
+### Flux de Communication
+
+```
+Client → Nginx (port 80) → Frontend Service (port 3000)
+Client → Nginx (port 80) → /api → Intervention Service (port 5000)
+Intervention Service → gRPC → Salarie Service (port 50051)
 ```
 
-## Compile and run the project
+## Structure du Projet
 
-```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+```
+e4-back-end/
+├── docker-compose.yml          # Orchestration des services
+├── nginx/
+│   └── nginx.conf             # Configuration du reverse proxy
+├── frontend/                  # Service Frontend (Next.js)
+│   ├── Dockerfile
+│   ├── package.json
+│   └── src/
+├── intervention/              # Service Intervention (NestJS)
+│   ├── Dockerfile
+│   ├── package.json
+│   ├── proto/
+│   │   └── salarie.proto     # Contrat gRPC
+│   └── src/
+│       ├── grpc-clients/
+│       │   └── salarie.client.ts
+│       └── intervention/
+└── salarie/                   # Service Salarie (NestJS gRPC)
+    ├── Dockerfile
+    ├── package.json
+    └── src/
+        ├── proto/
+        │   └── salarie.proto
+        └── salarie/
 ```
 
-## Run tests
+## Démarrage
+
+### Prérequis
+
+- Docker
+- Docker Compose
+
+### Lancement de l'application
 
 ```bash
-# unit tests
-$ npm run test
+# Construire et démarrer tous les services
+docker-compose up --build
 
-# e2e tests
-$ npm run test:e2e
+# Démarrer en arrière-plan
+docker-compose up -d --build
 
-# test coverage
-$ npm run test:cov
+# Voir les logs
+docker-compose logs -f
+
+# Arrêter les services
+docker-compose down
 ```
 
-## Deployment
+### Accès aux services
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+- **Application** : http://localhost
+- **API Documentation** : http://localhost/api/docs
+- **Base de données** : localhost:5432
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+## Développement
+
+### Variables d'environnement
+
+Les variables d'environnement sont configurées dans le `docker-compose.yml` :
+
+- `DATABASE_URL` : URL de connexion PostgreSQL
+- `SALARIE_GRPC_URL` : URL du service gRPC SALARIE
+- `NEXT_PUBLIC_API_URL` : URL de l'API pour le frontend
+
+### Communication gRPC
+
+Le service INTERVENTION communique avec le service SALARIE via gRPC :
+
+```typescript
+// Exemple d'utilisation du client gRPC
+const salarie = await this.salarieGrpcClient.getSalarie(salarieId);
+```
+
+### Ajout de nouvelles méthodes gRPC
+
+1. Modifier le fichier `proto/salarie.proto`
+2. Mettre à jour le contrôleur gRPC dans le service SALARIE
+3. Mettre à jour le client gRPC dans le service INTERVENTION
+
+## Tests
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+# Tests du service INTERVENTION
+cd intervention
+npm test
+
+# Tests du service SALARIE
+cd salarie
+npm test
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+## Monitoring
 
-## Resources
+Les logs de tous les services sont accessibles via :
 
-Check out a few resources that may come in handy when working with NestJS:
+```bash
+docker-compose logs [service-name]
+```
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+## Sécurité
 
-## Support
+- Le service SALARIE n'est pas exposé publiquement
+- Communication gRPC sécurisée entre services
+- Headers de sécurité configurés dans Nginx
+- Authentification JWT pour l'API REST
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+## Avantages de cette Architecture
 
-## Stay in touch
+1. **Séparation des responsabilités** : Chaque service a un domaine métier précis
+2. **Scalabilité** : Services déployables indépendamment
+3. **Performance** : Communication gRPC optimisée
+4. **Sécurité** : Isolation des services sensibles
+5. **Maintenabilité** : Code modulaire et testable
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+## Inconvénients
 
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+1. **Complexité** : Plus de composants à gérer
+2. **Debugging** : Traces distribuées plus complexes
+3. **Latence** : Appels réseau supplémentaires
+4. **Courbe d'apprentissage** : Technologies gRPC et microservices

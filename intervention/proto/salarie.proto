@@ -1,0 +1,51 @@
+syntax = "proto3";
+
+package salarie;
+
+service SalarieService {
+  rpc GetSalarie(GetSalarieRequest) returns (SalarieResponse);
+  rpc GetSalaries(GetSalariesRequest) returns (GetSalariesResponse);
+  rpc CreateSalarie(CreateSalarieRequest) returns (SalarieResponse);
+  rpc UpdateSalarie(UpdateSalarieRequest) returns (SalarieResponse);
+  rpc DeleteSalarie(DeleteSalarieRequest) returns (DeleteSalarieResponse);
+}
+
+message GetSalarieRequest {
+  int32 id = 1;
+}
+
+message GetSalariesRequest {
+  int32 page = 1;
+  int32 limit = 2;
+}
+
+message CreateSalarieRequest {
+  string nom = 1;
+  string prenom = 2;
+}
+
+message UpdateSalarieRequest {
+  int32 id = 1;
+  string nom = 2;
+  string prenom = 3;
+}
+
+message DeleteSalarieRequest {
+  int32 id = 1;
+}
+
+message SalarieResponse {
+  int32 id = 1;
+  string nom = 2;
+  string prenom = 3;
+}
+
+message GetSalariesResponse {
+  repeated SalarieResponse salaries = 1;
+  int32 total = 2;
+}
+
+message DeleteSalarieResponse {
+  bool success = 1;
+  string message = 2;
+}
